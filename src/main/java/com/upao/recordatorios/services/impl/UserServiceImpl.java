@@ -1,5 +1,6 @@
 package com.upao.recordatorios.services.impl;
 
+import com.upao.recordatorios.infra.exceptions.UserNotFoundException;
 import com.upao.recordatorios.models.dto.UserDTO;
 import com.upao.recordatorios.models.dto.UserRegisterDTO;
 import com.upao.recordatorios.models.entitys.User;
@@ -33,14 +34,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDTO getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
         return convertToDTO(user);
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
         return org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
                 .password(user.getPassword())
                 .authorities("USER")
