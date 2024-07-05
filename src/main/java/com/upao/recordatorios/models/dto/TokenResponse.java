@@ -1,4 +1,4 @@
-package com.upao.recordatorios.infra.security;
+package com.upao.recordatorios.models.dto;
 
 import lombok.Data;
 
