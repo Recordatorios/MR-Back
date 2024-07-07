@@ -1,4 +1,4 @@
 package com.upao.recordatorios.services;
 
-public interface UsuarioService {
+public class a {
 }
