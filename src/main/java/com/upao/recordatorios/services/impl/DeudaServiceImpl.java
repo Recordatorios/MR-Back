@@ -8,6 +8,7 @@ import com.upao.recordatorios.services.DeudaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -28,6 +29,18 @@ public class DeudaServiceImpl implements DeudaService {
     public Deuda saveDebt(Deuda deuda, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         deuda.setUser(user);
+
+        LocalDate today = LocalDate.now();
+        LocalDate dueDate = deuda.getFechaVencimiento();
+
+        if (dueDate.isEqual(today) || (dueDate.isAfter(today) && dueDate.isBefore(today.plusDays(7)))) {
+            deuda.setEstado("proxima");
+        } else if (dueDate.isBefore(today)) {
+            deuda.setEstado("vencida");
+        } else {
+            deuda.setEstado("pendiente");
+        }
+
         return deudaRepository.save(deuda);
     }
 
