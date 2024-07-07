@@ -69,7 +69,7 @@ class UserServiceImplTest {
 
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
 
-        UserDTO userDTO = userService.getUserByEmail("john.doe@example.com");
+        User userDTO = userService.getUserByEmail("john.doe@example.com");
 
         assertNotNull(userDTO);
         assertEquals("John Doe", userDTO.getName());
