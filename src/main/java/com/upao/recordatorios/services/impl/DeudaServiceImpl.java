@@ -6,10 +6,13 @@ import com.upao.recordatorios.infra.repository.DeudaRepository;
 import com.upao.recordatorios.infra.repository.UserRepository;
 import com.upao.recordatorios.services.DeudaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DeudaServiceImpl implements DeudaService {
@@ -29,6 +32,12 @@ public class DeudaServiceImpl implements DeudaService {
     public Deuda saveDebt(Deuda deuda, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         deuda.setUser(user);
+
+        // Verificar si el número de documento ya existe
+        Optional<Deuda> existingDebt = deudaRepository.findByNumeroDocumento(deuda.getNumeroDocumento());
+        if (existingDebt.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe una deuda con ese número de documento.");
+        }
 
         LocalDate today = LocalDate.now();
         LocalDate dueDate = deuda.getFechaVencimiento();
