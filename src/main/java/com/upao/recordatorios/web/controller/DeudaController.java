@@ -52,6 +52,12 @@ public class DeudaController {
         return ResponseEntity.ok(deudaService.getDebtsByMonthAndYear(month, year, userId));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Deuda>> searchByNumeroDocumento(@RequestParam String numeroDocumento, Principal principal) {
+        Long userId = getUserIdFromPrincipal(principal);
+        return ResponseEntity.ok(deudaService.getDebtsByNumeroDocumento(numeroDocumento, userId));
+    }
+
     private Long getUserIdFromPrincipal(Principal principal) {
         String email = principal.getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));

@@ -3,6 +3,7 @@ package com.upao.recordatorios.infra.repository;
 import com.upao.recordatorios.models.entitys.Deuda;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,4 +16,8 @@ public interface DeudaRepository extends JpaRepository<Deuda, Long> {
 
     @Query("SELECT d FROM Deuda d WHERE d.user.id = :userId ORDER BY d.fechaVencimiento ASC")
     List<Deuda> findByUserId(Long userId);
+
+    @Query("SELECT d FROM Deuda d WHERE d.user.id = :userId AND d.numeroDocumento = :numeroDocumento ORDER BY d.fechaVencimiento ASC")
+    List<Deuda> findByNumeroDocumentoAndUserId(@Param("numeroDocumento") String numeroDocumento, @Param("userId") Long userId);
+
 }

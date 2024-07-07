@@ -63,4 +63,9 @@ public class DeudaServiceImpl implements DeudaService {
     public List<Deuda> getDebtsByMonthAndYear(int month, int year, Long userId) {
         return deudaRepository.findByFechaVencimientoMonthAndYearAndUserId(month, year, userId);
     }
+
+    @Override
+    public List<Deuda> getDebtsByNumeroDocumento(String numeroDocumento, Long userId) {
+        return deudaRepository.findByNumeroDocumentoAndUserId(numeroDocumento, userId);
+    }
 }

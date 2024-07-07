@@ -9,4 +9,5 @@ public interface DeudaService {
     void markAsPaid(Long deudaId);
     void deleteDebt(Long deudaId);
     List<Deuda> getDebtsByMonthAndYear(int month, int year, Long userId);
+    List<Deuda> getDebtsByNumeroDocumento(String numeroDocumento, Long userId);
 }
