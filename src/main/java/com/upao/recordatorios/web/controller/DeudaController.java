@@ -1,11 +1,14 @@
 package com.upao.recordatorios.web.controller;
 
 import com.upao.recordatorios.models.entitys.Deuda;
+import com.upao.recordatorios.models.entitys.User;
+import com.upao.recordatorios.infra.repository.UserRepository;
 import com.upao.recordatorios.services.DeudaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -16,14 +19,19 @@ public class DeudaController {
     @Autowired
     private DeudaService deudaService;
 
+    @Autowired
+    private UserRepository userRepository; // Inyección del UserRepository
+
     @GetMapping
-    public ResponseEntity<List<Deuda>> getAllDebts() {
-        return ResponseEntity.ok(deudaService.getAllDebts());
+    public ResponseEntity<List<Deuda>> getAllDebts(Principal principal) {
+        Long userId = getUserIdFromPrincipal(principal);
+        return ResponseEntity.ok(deudaService.getAllDebts(userId));
     }
 
     @PostMapping
-    public ResponseEntity<Deuda> addDebt(@RequestBody Deuda deuda) {
-        return ResponseEntity.ok(deudaService.saveDebt(deuda));
+    public ResponseEntity<Deuda> addDebt(@RequestBody Deuda deuda, Principal principal) {
+        Long userId = getUserIdFromPrincipal(principal);
+        return ResponseEntity.ok(deudaService.saveDebt(deuda, userId));
     }
 
     @PatchMapping("/{id}/mark-as-paid")
@@ -32,4 +40,15 @@ public class DeudaController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/month/{month}/year/{year}")
+    public ResponseEntity<List<Deuda>> getDebtsByMonthAndYear(@PathVariable int month, @PathVariable int year, Principal principal) {
+        Long userId = getUserIdFromPrincipal(principal);
+        return ResponseEntity.ok(deudaService.getDebtsByMonthAndYear(month, year, userId));
+    }
+
+    private Long getUserIdFromPrincipal(Principal principal) {
+        String email = principal.getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return user.getId();
+    }
 }
