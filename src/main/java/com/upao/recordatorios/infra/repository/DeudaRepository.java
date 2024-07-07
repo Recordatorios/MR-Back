@@ -12,6 +12,7 @@ public interface DeudaRepository extends JpaRepository<Deuda, Long> {
 
     @Query("SELECT d FROM Deuda d WHERE FUNCTION('MONTH', d.fechaVencimiento) = :month AND FUNCTION('YEAR', d.fechaVencimiento) = :year AND d.user.id = :userId ORDER BY d.fechaVencimiento ASC")
     List<Deuda> findByFechaVencimientoMonthAndYearAndUserId(int month, int year, Long userId);
+
     @Query("SELECT d FROM Deuda d WHERE d.user.id = :userId ORDER BY d.fechaVencimiento ASC")
     List<Deuda> findByUserId(Long userId);
 }

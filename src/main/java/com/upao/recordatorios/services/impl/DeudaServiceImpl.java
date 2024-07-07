@@ -40,6 +40,13 @@ public class DeudaServiceImpl implements DeudaService {
     }
 
     @Override
+    public void deleteDebt(Long deudaId) {
+        Deuda deuda = deudaRepository.findById(deudaId)
+                .orElseThrow(() -> new RuntimeException("Deuda no encontrada"));
+        deudaRepository.delete(deuda);
+    }
+
+    @Override
     public List<Deuda> getDebtsByMonthAndYear(int month, int year, Long userId) {
         return deudaRepository.findByFechaVencimientoMonthAndYearAndUserId(month, year, userId);
     }

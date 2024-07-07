@@ -20,7 +20,7 @@ public class DeudaController {
     private DeudaService deudaService;
 
     @Autowired
-    private UserRepository userRepository; // Inyección del UserRepository
+    private UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<List<Deuda>> getAllDebts(Principal principal) {
@@ -37,6 +37,12 @@ public class DeudaController {
     @PatchMapping("/{id}/mark-as-paid")
     public ResponseEntity<Void> markAsPaid(@PathVariable Long id) {
         deudaService.markAsPaid(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDebt(@PathVariable Long id) {
+        deudaService.deleteDebt(id);
         return ResponseEntity.noContent().build();
     }
 
