@@ -1,5 +1,7 @@
 package com.upao.recordatorios.models.entitys;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,11 +25,13 @@ public class Deuda {
     private LocalDate fechaCreacion;
     private String estado; // 'pendiente', 'pagada', 'vencida'
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "deuda")
+    @JsonIgnore
     private List<CronogramaPago> cronogramaPagos;
 
     @PrePersist

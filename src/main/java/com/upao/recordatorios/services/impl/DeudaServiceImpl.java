@@ -11,8 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DeudaServiceImpl implements DeudaService {
@@ -33,10 +36,9 @@ public class DeudaServiceImpl implements DeudaService {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         deuda.setUser(user);
 
-        // Verificar si el número de documento ya existe
-        Optional<Deuda> existingDebt = deudaRepository.findByNumeroDocumento(deuda.getNumeroDocumento());
+        Optional<Deuda> existingDebt = deudaRepository.findByNumeroDocumentoAndUserId(deuda.getNumeroDocumento(), userId);
         if (existingDebt.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe una deuda con ese número de documento.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe una deuda con ese número de documento para este usuario.");
         }
 
         LocalDate today = LocalDate.now();
@@ -52,6 +54,7 @@ public class DeudaServiceImpl implements DeudaService {
 
         return deudaRepository.save(deuda);
     }
+
 
     @Override
     public void markAsPaid(Long deudaId) {
@@ -75,11 +78,17 @@ public class DeudaServiceImpl implements DeudaService {
 
     @Override
     public List<Deuda> getDebtsByNumeroDocumento(String numeroDocumento, Long userId) {
-        return deudaRepository.findByNumeroDocumentoAndUserId(numeroDocumento, userId);
+        return deudaRepository.findByNumeroDocumentoAndUserId(numeroDocumento, userId)
+                .map(Collections::singletonList)
+                .orElse(Collections.emptyList());
     }
+
     @Override
     public List<Deuda> getDebtsDueToday(Long userId) {
         LocalDate today = LocalDate.now();
-        return deudaRepository.findByFechaVencimientoToday(today, userId);
+        return deudaRepository.findByFechaVencimientoToday(today, userId)
+                .stream()
+                .filter(deuda -> !deuda.getEstado().equals("pagada"))
+                .collect(Collectors.toList());
     }
 }
