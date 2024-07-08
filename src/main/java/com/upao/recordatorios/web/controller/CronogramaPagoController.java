@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cronogramas-pago")
-@CrossOrigin(origins = "*") // Habilitar CORS para este controlador
+@CrossOrigin("*")// Habilitar CORS para este controlador
 public class CronogramaPagoController {
 
     @Autowired

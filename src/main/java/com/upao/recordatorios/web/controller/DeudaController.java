@@ -13,7 +13,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/deudas")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 public class DeudaController {
 
     @Autowired
