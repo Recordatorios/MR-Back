@@ -9,7 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/deudas")
@@ -59,14 +62,18 @@ public class DeudaController {
     }
 
     @GetMapping("/alertDueToday")
-    public ResponseEntity<String> alertDueToday(Principal principal) {
+    public ResponseEntity<Map<String, Object>> alertDueToday(Principal principal) {
         Long userId = getUserIdFromPrincipal(principal);
         List<Deuda> deudasHoy = deudaService.getDebtsDueToday(userId);
+        Map<String, Object> response = new HashMap<>();
         if (deudasHoy.isEmpty()) {
-            return ResponseEntity.ok("No tienes deudas que vencen hoy");
+            response.put("message", "No tienes deudas que vencen hoy");
+            response.put("deudasHoy", new ArrayList<>());
         } else {
-            return ResponseEntity.ok("Tienes deudas que vencen hoy");
+            response.put("message", "Tienes deudas que vencen hoy");
+            response.put("deudasHoy", deudasHoy);
         }
+        return ResponseEntity.ok(response);
     }
 
     private Long getUserIdFromPrincipal(Principal principal) {
