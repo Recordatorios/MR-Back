@@ -10,4 +10,5 @@ public interface DeudaService {
     void deleteDebt(Long deudaId);
     List<Deuda> getDebtsByMonthAndYear(int month, int year, Long userId);
     List<Deuda> getDebtsByNumeroDocumento(String numeroDocumento, Long userId);
+    List<Deuda> getDebtsDueToday(Long userId);
 }

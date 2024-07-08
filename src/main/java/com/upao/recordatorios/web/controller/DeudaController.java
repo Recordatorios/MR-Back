@@ -58,6 +58,17 @@ public class DeudaController {
         return ResponseEntity.ok(deudaService.getDebtsByNumeroDocumento(numeroDocumento, userId));
     }
 
+    @GetMapping("/alertDueToday")
+    public ResponseEntity<String> alertDueToday(Principal principal) {
+        Long userId = getUserIdFromPrincipal(principal);
+        List<Deuda> deudasHoy = deudaService.getDebtsDueToday(userId);
+        if (deudasHoy.isEmpty()) {
+            return ResponseEntity.ok("No tienes deudas que vencen hoy");
+        } else {
+            return ResponseEntity.ok("Tienes deudas que vencen hoy");
+        }
+    }
+
     private Long getUserIdFromPrincipal(Principal principal) {
         String email = principal.getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));

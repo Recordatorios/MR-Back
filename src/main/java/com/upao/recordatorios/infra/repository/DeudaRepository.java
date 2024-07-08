@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +23,7 @@ public interface DeudaRepository extends JpaRepository<Deuda, Long> {
 
     // Nuevo método para encontrar deuda por número de documento
     Optional<Deuda> findByNumeroDocumento(String numeroDocumento);
+
+    @Query("SELECT d FROM Deuda d WHERE d.fechaVencimiento = :today AND d.user.id = :userId")
+    List<Deuda> findByFechaVencimientoToday(LocalDate today, Long userId);
 }

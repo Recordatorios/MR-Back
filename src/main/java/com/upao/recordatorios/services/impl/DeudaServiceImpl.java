@@ -77,4 +77,9 @@ public class DeudaServiceImpl implements DeudaService {
     public List<Deuda> getDebtsByNumeroDocumento(String numeroDocumento, Long userId) {
         return deudaRepository.findByNumeroDocumentoAndUserId(numeroDocumento, userId);
     }
+    @Override
+    public List<Deuda> getDebtsDueToday(Long userId) {
+        LocalDate today = LocalDate.now();
+        return deudaRepository.findByFechaVencimientoToday(today, userId);
+    }
 }
