@@ -6,6 +6,8 @@ import com.upao.recordatorios.infra.security.JwtService;
 import com.upao.recordatorios.models.entitys.User;
 import com.upao.recordatorios.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,12 +30,23 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public TokenResponse login(@RequestBody LoginRequest loginRequest) throws AuthenticationException {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User user = userService.getUserByEmail(loginRequest.getEmail()); // Asegúrate de que tienes este método en tu servicio
-        String token = jwtService.getToken(userDetails, user);
-        return new TokenResponse(token);
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        // Verificar si el correo no está registrado
+        if (!userService.existsByEmail(loginRequest.getEmail())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("El correo electrónico no está registrado.");
+        }
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User user = userService.getUserByEmail(loginRequest.getEmail());
+            String token = jwtService.getToken(userDetails, user);
+            return ResponseEntity.ok(new TokenResponse(token));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Credenciales incorrectas. Inténtalo nuevamente.");
+        }
     }
 }
