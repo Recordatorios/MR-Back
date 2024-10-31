@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,27 +29,39 @@ public class DeudaServiceImpl implements DeudaService {
     }
 
     @Override
-    public Deuda saveDebt(Deuda deuda, Long userId) {
+    public Map<String, Object> saveDebt(Deuda deuda, Long userId) {
+        Map<String, Object> response = new HashMap<>();
+
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         deuda.setUser(user);
 
+        // Verificar si ya existe una deuda con el mismo número de documento para este usuario
         Optional<Deuda> existingDebt = deudaRepository.findByNumeroDocumentoAndUserId(deuda.getNumeroDocumento(), userId);
         if (existingDebt.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe una deuda con ese número de documento para este usuario.");
+            response.put("error", "Ya existe una deuda con ese número de documento para este usuario.");
+            return response;
         }
 
         LocalDate today = LocalDate.now();
         LocalDate dueDate = deuda.getFechaVencimiento();
 
+        // Verificar si la fecha de vencimiento es anterior a la fecha actual
+        if (dueDate.isBefore(today)) {
+            response.put("error", "La fecha de vencimiento no puede ser anterior a la fecha actual.");
+            return response;
+        }
+
+        // Configurar el estado de la deuda en función de la fecha de vencimiento
         if (dueDate.isEqual(today) || (dueDate.isAfter(today) && dueDate.isBefore(today.plusDays(7)))) {
             deuda.setEstado("proxima");
-        } else if (dueDate.isBefore(today)) {
-            deuda.setEstado("vencida");
         } else {
             deuda.setEstado("pendiente");
         }
 
-        return deudaRepository.save(deuda);
+        // Guardar la deuda y devolver en la respuesta
+        Deuda savedDebt = deudaRepository.save(deuda);
+        response.put("deuda", savedDebt);
+        return response;
     }
 
 

@@ -29,9 +29,17 @@ public class DeudaController {
     }
 
     @PostMapping
-    public ResponseEntity<Deuda> addDebt(@RequestBody Deuda deuda, Principal principal) {
+    public ResponseEntity<?> addDebt(@RequestBody Deuda deuda, Principal principal) {
         Long userId = getUserIdFromPrincipal(principal);
-        return ResponseEntity.ok(deudaService.saveDebt(deuda, userId));
+        Map<String, Object> response = deudaService.saveDebt(deuda, userId);
+
+        // Verificar si la respuesta contiene un mensaje de error y devolver un código 400 si es el caso
+        if (response.containsKey("error")) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", response.get("error")));
+        }
+
+        // Si no hay error, devolver la deuda creada con un código 200 OK
+        return ResponseEntity.ok(response.get("deuda"));
     }
 
     @PatchMapping("/{id}/mark-as-paid")
